@@ -39,7 +39,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
   transition:transform .35s var(--spring),background .25s,opacity .25s}
 button:active{transform:scale(.96)}
 svg{display:block}
-.glass{background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);
   box-shadow:inset 0 0 0 .5px var(--edge),var(--shadow)}
 .circle{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
 .circle svg{width:22px;height:22px}
@@ -506,7 +506,19 @@ svg{display:block}
 
 <script>
 /* LunAI sunucu adresi: lunai-worker.js dağıtımının URL’si. API anahtarı burada DEĞİL, yalnızca sunucuda tutulur. */
-const LUNAI_ENDPOINT=''; // Cloudflare Worker URL adresini buraya yazın
+const LUNAI_ENDPOINT=''; // İstersen Cloudflare Worker URL adresini buraya yaz.
+function workerEndpoint(){
+  let saved='';try{saved=localStorage.getItem('lunai_worker_url')||''}catch(e){}
+  return (saved||LUNAI_ENDPOINT).trim();
+}
+function configureWorker(){
+  const value=prompt('LunAI Cloudflare Worker adresi (https://...workers.dev). API anahtarını buraya yazma:',workerEndpoint());
+  if(value===null)return '';
+  const url=value.trim();
+  if(!/^https:\/\/[^\s/]+(?:\/[^\s]*)?$/.test(url)){alert('Geçerli bir HTTPS Worker adresi gir. API anahtarını değil.');return ''}
+  try{localStorage.setItem('lunai_worker_url',url)}catch(e){}
+  return url;
+}
 const $=s=>document.querySelector(s),root=document.documentElement;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -808,11 +820,11 @@ function onType(){
   if(mode==='ai'||mode==='luna'){comp='';selI=-1;renderGhost();drawSugg();return}
   if(mode==='url'){sugs=urlSugs(t);comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg();sTimer=setTimeout(()=>fetchUrlG(t),150);return}
   if(mode==='music'){comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg();sTimer=setTimeout(()=>fetchMusic(t),260);return}
-  comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg();sTimer=setTimeout(()=>fetchSugg(t),120);
+  sugs=[...new Set([...H.filter(h=>h.m===mode).map(h=>h.q),...(POP[mode]||POP.web)].filter(x=>x.toLocaleLowerCase('tr').includes(t.toLocaleLowerCase('tr'))))].slice(0,8);comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg();sTimer=setTimeout(()=>fetchSugg(t),180);
 }
 async function fetchSugg(t){
   if(sAbort)sAbort.abort();sAbort=new AbortController();
-  try{const r=await sg(curEng(mode),t,sAbort.signal);if(q.value.trim()!==t)return;sugs=r.list.slice(0,10);comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg()}catch(e){}
+  try{const r=await sg(curEng(mode),t,sAbort.signal);if(q.value.trim()!==t)return;if(r.list.length)sugs=r.list.slice(0,10);comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg()}catch(e){}
 }
 $('#sugg').addEventListener('click',e=>{
   const i=e.target.closest('[data-ins]');
@@ -1149,8 +1161,8 @@ function lunaPrefs(o){
   return{call:call.slice(0,40),len:S.luLen,tone:S.luTone,quick:!!o.quick,memory:o.incog?'':memText()};
 }
 async function lunaCall(body,onText,signal){
-  if(!LUNAI_ENDPOINT)throw new Error('config');
-  const res=await fetch(LUNAI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal});
+  const endpoint=workerEndpoint()||configureWorker();if(!endpoint)throw new Error('config');
+  const res=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal});
   if(!res.ok)throw new Error('http'+res.status);
   let full='';
   const eat=ln=>{const d=ln.startsWith('data:')?ln.slice(5).trim():'';if(!d||d==='[DONE]')return;
@@ -1162,13 +1174,13 @@ async function lunaCall(body,onText,signal){
   return full;
 }
 async function lunaJSON(body){
-  if(!LUNAI_ENDPOINT)throw new Error('config');
-  const r=await fetch(LUNAI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  const endpoint=workerEndpoint()||configureWorker();if(!endpoint)throw new Error('config');
+  const r=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
   if(!r.ok)throw new Error('http'+r.status);return r.json();
 }
 const FACT=/\b(ben|benim|adım|yaşım|yaşıyorum|çalışıyorum|mezunum|seviyorum|severim|sevmem|doğum|evliyim|bekarım|çocuğum|kedim|köpeğim|alerji|favori|hobim|mesleğim|işim|okuyorum)\b/i;
 async function memExtract(text){
-  if(!S.memAuto||!LUNAI_ENDPOINT||!FACT.test(text))return;
+  if(!S.memAuto||!workerEndpoint()||!FACT.test(text))return;
   try{
     const j=await lunaJSON({action:'extract',text:text.slice(0,800)});let added='';
     for(const f of(j.facts||[]).slice(0,3)){
