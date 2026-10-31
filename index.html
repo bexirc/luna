@@ -1143,7 +1143,7 @@ const memText=()=>MEM.map(m=>`# ${m.title}\n${m.text}`).join('\n\n').slice(0,600
 let CHATS=[];try{CHATS=JSON.parse(localStorage.getItem('lunai_chats')||'[]').filter(c=>c&&Array.isArray(c.msgs)).slice(0,300)}catch(e){}
 const saveChats=()=>{try{localStorage.setItem('lunai_chats',JSON.stringify(CHATS))}catch(e){}};
 
-function errText(e){return e&&e.message==='config'?'LunAI şu an kullanılamıyor: sunucu bağlantısı henüz ayarlanmamış.':'LunAI şu an yanıt veremiyor. Biraz sonra tekrar dene.'}
+function errText(e){if(e&&e.message==='config')return 'Sunucu adresi ayarlanmamış.';return e&&e.message?'Bağlantı hatası: '+e.message:'Bilinmeyen bağlantı hatası.'}
 function lunaPrefs(o){
   const call=(S.luCall||'').trim()||(S.profile.name||'').trim();
   return{call:call.slice(0,40),len:S.luLen,tone:S.luTone,quick:!!o.quick,memory:o.incog?'':memText()};
@@ -1151,7 +1151,7 @@ function lunaPrefs(o){
 async function lunaCall(body,onText,signal){
   if(!LUNAI_ENDPOINT)throw new Error('config');
   const res=await fetch(LUNAI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal});
-  if(!res.ok)throw new Error('http'+res.status);
+  if(!res.ok){const detail=(await res.text()).slice(0,1200);throw new Error('HTTP '+res.status+(detail?' | '+detail:''))}
   let full='';
   const eat=ln=>{const d=ln.startsWith('data:')?ln.slice(5).trim():'';if(!d||d==='[DONE]')return;
     try{const j=JSON.parse(d),p=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];const t=p.map(x=>x.text||'').join('');if(t){full+=t;onText(full)}}catch(_){}};
@@ -1164,7 +1164,7 @@ async function lunaCall(body,onText,signal){
 async function lunaJSON(body){
   if(!LUNAI_ENDPOINT)throw new Error('config');
   const r=await fetch(LUNAI_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
-  if(!r.ok)throw new Error('http'+r.status);return r.json();
+  if(!r.ok){const detail=(await r.text()).slice(0,1200);throw new Error('HTTP '+r.status+(detail?' | '+detail:''))}return r.json();
 }
 const FACT=/\b(ben|benim|adım|yaşım|yaşıyorum|çalışıyorum|mezunum|seviyorum|severim|sevmem|doğum|evliyim|bekarım|çocuğum|kedim|köpeğim|alerji|favori|hobim|mesleğim|işim|okuyorum)\b/i;
 async function memExtract(text){
