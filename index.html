@@ -681,7 +681,13 @@ const POOL={
  image:['kedi resimleri','iphone duvar kağıdı','manzara fotoğrafları','anime wallpaper','uzay görselleri','istanbul fotoğrafları','çiçek resimleri','köpek yavrusu','gün batımı','minimalist arka plan','araba resimleri','dağ manzarası','galaksi','pixel art','dövme tasarımları','ev dekorasyon fikirleri','4k doğa','sanat tabloları','yemek fotoğrafları','okyanus'],
  video:['yeni çıkan şarkılar','komik videolar','lo-fi müzik','fragman','ev egzersizi','kedi videoları','belgesel','stand up','teknoloji inceleme','yemek tarifi','oyun oynanış','podcast','relax müzik','makyaj','kamp vlog','ders anlatımı','canlı müzik','maç özeti','seyahat vlog','swift öğren']};
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const POP={};for(const k in POOL)POP[k]=shuf(POOL[k]).slice(0,5);
+const SEED={"web":[["canlı maç izle",3],["dolar kaç tl",2],["hava durumu [Şehir]",1],["nöbetçi eczane",2],["ehliyet randevu al",1],["netflix şifre değiştirme",1],["instagram giriş",3],["whatsapp web",3],["canlı skor",3],["altın fiyatları",2]],"image":{"pinterest":[["tırnak modelleri 2026",3],["saç kesim modelleri",3],["salon dekorasyon fikirleri",2],["yılbaşı ağacı süsleri",2],["estetik tırnak tasarımları",2],["oda düzenleme fikirleri",1]],"google":[["anime wallpaper 4k",1],["gelinlik modelleri",3],["erkek saç modelleri",2],["çizgi film karakterleri",1]]},"video":{"youtube":[["canlı futbol maçı izle",3],["yemek tarifleri",2],["çizgi film izle",2],["lofi hip hop radio",1],["minecraft survival",2],["spor haberleri",3],["bebek ninnileri",1],["eğlenceli videolar",2],["nasıl yapılır",2]],"google":[["manşet haberleri",3]]}};
+const wshuf=a=>a.map(([t,w])=>[t,Math.random()**(1/w)]).sort((x,y)=>y[1]-x[1]).map(z=>z[0]);
+POOL.web=wshuf(SEED.web);POOL.image=wshuf(Object.values(SEED.image).flat());POOL.video=wshuf(Object.values(SEED.video).flat());
+function seedFor(m){const c=()=>(S.profile&&(S.profile.district||S.profile.city))||'';
+  const l=m==='web'?SEED.web:((SEED[m]||{})[curEng(m)]||[]);
+  return wshuf(l).map(x=>x.replace('[Şehir]',c()).trim()).concat(shuf(POOL[m]||[]))}
+const POP={};for(const k in POOL)POP[k]=POOL[k].slice(0,5);
 let sugs=[],sAbort,sTimer;
 const sIc='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
 const INS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7"/><path d="M7 16V7h9"/></svg>';
@@ -755,14 +761,14 @@ async function loadPop(m){
     const rs=await Promise.all(shuf([...LET]).slice(0,7).map(s=>sg(eng,s,undefined,m).catch(()=>({list:[],src:''}))));
     const out=[];let src='';
     for(const r of rs){if(r.src)src=r.src;const x=r.list.find(v=>!out.includes(v));if(x)out.push(x)}
-    const tr=m==='web'?shuf(await trendTR()).slice(0,6):[],mix=shuf([...out,...tr]);for(const p of shuf(POOL[m])){if(mix.length>=(m==='web'?5:3))break;if(!mix.includes(p))mix.push(p)}PQ[m]={key,list:mix.slice(0,5),src:''}
+    const tr=m==='web'?shuf(await trendTR()).slice(0,6):[],mix=shuf([...out,...tr]);for(const p of seedFor(m)){if(mix.length>=5)break;if(!mix.includes(p))mix.push(p)}PQ[m]={key,list:mix.slice(0,5),src:''}
   }catch(e){}
   if(m===mode)drawSugg();
 }
 let comp='',noAuto=false,selI=-1,navBase=null;
 const TOP=['google.com','youtube.com','facebook.com','instagram.com','whatsapp.com','wikipedia.org','x.com','amazon.com','amazon.com.tr','netflix.com','linkedin.com','tiktok.com','reddit.com','yahoo.com','bing.com','duckduckgo.com','yandex.com','apple.com','microsoft.com','github.com','chatgpt.com','claude.ai','gemini.google.com','openai.com','spotify.com','twitch.tv','pinterest.com','ebay.com','trendyol.com','hepsiburada.com','n11.com','sahibinden.com','ciceksepeti.com','yemeksepeti.com','getir.com','migros.com.tr','a101.com.tr','turkcell.com.tr','vodafone.com.tr','turktelekom.com.tr','turkiye.gov.tr','ptt.gov.tr','hurriyet.com.tr','milliyet.com.tr','sabah.com.tr','sozcu.com.tr','ntv.com.tr','cnnturk.com','haberturk.com','eksisozluk.com','donanimhaber.com','webtekno.com','mynet.com','akbank.com','garantibbva.com.tr','isbank.com.tr','ziraatbank.com.tr','yapikredi.com.tr','enpara.com','turkishairlines.com','flypgs.com','booking.com','tripadvisor.com','airbnb.com','translate.google.com','maps.google.com','drive.google.com','gmail.com','outlook.com','office.com','zoom.us','discord.com','telegram.org','medium.com','quora.com','stackoverflow.com','imdb.com','disneyplus.com','exxen.com','gain.tv','tabii.com','mackolik.com','sporx.com','fanatik.com.tr','trt.net.tr','yemek.com','nefisyemektarifleri.com','tcdd.gov.tr','edevlet.gov.tr','kitapyurdu.com','dr.com.tr','teknosa.com','mediamarkt.com.tr'];
-const TRTOP=['google.com','youtube.com','trendyol.com','hepsiburada.com','sahibinden.com','eksisozluk.com','n11.com','turkiye.gov.tr','hurriyet.com.tr','sabah.com.tr','ntv.com.tr','sozcu.com.tr','mynet.com','yemeksepeti.com','getir.com','instagram.com','x.com','facebook.com','netflix.com','wikipedia.org'];
-const POPURL=shuf(TOP.slice(0,16)).slice(0,5);
+const TRTOP=[...new Set(["trendyol.com", "sahibinden.com", "hepsiburada.com", "eksisozluk.com", "milliyet.com.tr", "hurriyet.com.tr", "ntv.com.tr", "turkiye.gov.tr", "sgk.gov.tr", "e-okul.meb.gov.tr"].concat(['google.com','youtube.com','n11.com','sabah.com.tr','sozcu.com.tr','mynet.com','yemeksepeti.com','getir.com','instagram.com','x.com','facebook.com','netflix.com','wikipedia.org']))];
+const POPURL=shuf(TRTOP.slice(0,10)).slice(0,5);
 function urlSugs(t){
   t=t.toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'');
   if(!t||t.includes('/'))return[];
@@ -910,7 +916,7 @@ async function doSearch(kind,t){
   location.href=URLS[kind][curEng(kind)](e);
 }
 function shortUrl(t){const m=/^w\/([a-z0-9]+)$/i.exec(t.trim());if(!m)return'';const k=m[1].toLowerCase();
-  return TOP.find(d=>{const n=d.split('.')[0];return k===n||k===n[0]+n.slice(1).replace(/[aeıioöuü0-9]/g,'')})||''}
+  return[...TRTOP,...TOP].find(d=>{const n=d.split('.')[0];return k===n||k===n[0]+n.slice(1).replace(/[aeıioöuü0-9]/g,'')})||''}
 async function run(kind){
   if(kind==='ai')return doSearch('ai',q.value.trim());
   if(kind==='image'&&pic)return imageSearch();
