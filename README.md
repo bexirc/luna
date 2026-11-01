@@ -7,6 +7,7 @@ Tek sayfalık, Apple tarzı arama başlangıç ekranı. Sunucu gerektirmez; GitH
 |---|---|
 | `index.html` | Uygulamanın tamamı |
 | `config.js` | Proxy adresi ayarı |
+| `db-web.js`, `db-url.js`, `db-image.js`, `db-video.js` | Yerel arama veri tabanı: web 1000, görsel 1000 (Pinterest + Google), video 1000 (YouTube + Google), URL 247 site. Yazarken anında öneri verir; satır biçimi dosyanın başında |
 | `manifest.webmanifest`, `icon-180.png`, `sw.js` | Ana ekrana ekleme (PWA) ve çevrimdışı önbellek |
 | `worker.js`, `wrangler.toml` | Tarayıcı kısıtlarını aşan küçük CORS proxy (Cloudflare Workers). Siteye ait değildir, Cloudflare'e yüklenir |
 | `.nojekyll` | Pages'in dosyaları olduğu gibi sunması için |
@@ -21,3 +22,6 @@ Tek sayfalık, Apple tarzı arama başlangıç ekranı. Sunucu gerektirmez; GitH
 - Proxy gerekmeden çalışanlar: Google ve YouTube önerileri, hava durumu (Open-Meteo), il/ilçe (turkiyeapi.dev), Apple Music ve Deezer araması, Türkiye top 10, Vikipedi gündemi, tüm arama yönlendirmeleri.
 - Proxy gerektirenler: Genius (şarkı sözü araması), Yandex / Yahoo / Bing / DuckDuckGo / Pinterest arama önerileri. Proxy yoksa o motor için öneri boş görünür.
 - Spotify, YT Music ve Tidal için anahtarsız arama servisi yoktur; bu platformlar seçiliyse şarkı araması Genius/Apple/Deezer'dan yapılır, şarkı seçilen platformun arama sayfasında açılır.
+
+## Veri tabanı
+Dosyalar `window.LUNAI_DB` altına metin olarak yüklenir. Satır biçimi: web/url için `ağırlık|metin`, görsel/video için `motor|ağırlık|metin` (görselde `p` Pinterest, `g` Google; videoda `y` YouTube, `g` Google). Ağırlık 1–9 arasıdır; yüksek olan öneride önce gelir. Kendi verini eklemek için satır ekleyip kaydetmen yeterli. Veriler Google'dan çekilmiş ölçüm değil, Türkiye'de sık aranan konular ve kombinasyonlarından derlenmiş tahmini bir listedir.
