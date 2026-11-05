@@ -1,16 +1,15 @@
 /*
   neurun service worker.
   Uygulama dosyalarını önbelleğe alır, çevrimdışı açılmayı ve hızlı yüklemeyi sağlar.
-  Dosyaları GitHub'da güncellediğinde VERSION değerini bir artır (ör. neurun-v2),
+  Dosyaları GitHub'da güncellediğinde VERSION değerini bir artır (ör. neurun-v3),
   böylece eski önbellek silinir ve herkes yeni sürümü alır.
 */
-const VERSION = 'neurun-v2';
+const VERSION = 'neurun-v3';
 const CORE = [
   './', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.webmanifest',
   'db-web.js', 'db-url.js', 'db-image.js', 'db-video.js', 'db-songs.js',
   'big-web.js', 'big-image.js', 'big-video.js', 'big-url.js',
-  'icon-192.png', 'icon-192-dark.png', 'icon-512.png', 'apple-touch-icon.png', 'apple-touch-icon-dark.png',
-  'neurun-logo.png', 'elnavic-logo.png'
+  'icon-192.png', 'icon-192-dark.png', 'icon-512.png', 'apple-touch-icon.png', 'apple-touch-icon-dark.png'
 ];
 
 self.addEventListener('install', e => {

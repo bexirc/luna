@@ -772,7 +772,7 @@ const PAGES={
     :`<div class="row"><span class="lbl">İl</span><span class="rv">${esc(p.city||'—')}</span></div><div class="row"><span class="lbl">İlçe</span><span class="rv">${esc(p.district||'—')}</span></div>`;
       return head+grp('',rows+birthRow+loc,profEdit?'':'Bilgilerin yalnızca bu cihazda saklanır.');
  },
- about:()=>`<div class="about"><span class="ico"><img src="${document.querySelector('link[rel=apple-touch-icon]:not([media])').href}" alt=""></span><h3>neurun</h3><p>Sürüm 1.0.0 Beta</p></div>`
+ about:()=>`<div class="about"><span class="ico"><img src="${document.querySelector('link[rel=apple-touch-icon]:not([media])').href}" alt=""></span><h3 class="nwm" role="img" aria-label="neurun"></h3><p>Sürüm 1.0.0</p></div>`
   +grp('',`<div class="row"><span class="grow">Geliştirici</span><span class="det">Onur Bekir Çalgın</span></div><div class="row"><span class="grow">Şirket</span><span class="det">Elnavic</span></div><div class="elv" role="img" aria-label="Elnavic"><i></i></div>`)
 };
 const app=$('#app'),stack=[];
@@ -1397,13 +1397,9 @@ function playSplash(){
   clearTimeout(splashT);
   if(home.classList.contains('noanim')){home.dataset.st='c';splashT=setTimeout(()=>{splashT=null;openHome()},700);return}
   home.dataset.st='a';                                            /* rozet belirir, yıldız döner */
-  let go=false;
-  const start=()=>{if(go)return;go=true;
-    setTimeout(()=>{home.dataset.st='b'},1500);                    /* yıldız durur, rozet oturur */
-    setTimeout(()=>{home.dataset.st='c'},1900);                    /* logo sağa kayar, neurun yazısı açılır */
-    splashT=setTimeout(()=>{splashT=null;openHome()},3900)};       /* yazı tamamlanıp bir an görünür, sonra arama ekranı */
-  const im=new Image();im.onload=im.onerror=start;im.src='neurun-logo.png';   /* yazı görseli hazır olmadan başlama */
-  if(im.complete)start();setTimeout(start,1500);
+  setTimeout(()=>{home.dataset.st='b'},1500);                      /* yıldız durur, rozet oturur */
+  setTimeout(()=>{home.dataset.st='c'},1900);                      /* logo sağa kayar, neurun yazısı açılır */
+  splashT=setTimeout(()=>{splashT=null;openHome()},3900);          /* yazı tamamlanıp bir an görünür, sonra arama ekranı */
 }
 function openHome(){
   if(!home.classList.contains('splash'))return;clearTimeout(splashT);
