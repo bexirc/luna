@@ -29,7 +29,7 @@ const ACC={blue:['#007AFF','#0A84FF',0,'Mavi','#32ADE6','#64D2FF'],indigo:['#585
   yellow:['#FFCC00','#FFD60A',1,'Sarı','#FF9500','#FF9F0A'],green:['#34C759','#30D158',0,'Yeşil','#00C7BE','#63E6E2'],
   mint:['#00C7BE','#63E6E2',1,'Nane','#32ADE6','#64D2FF'],brown:['#A2845E','#AC8E68',0,'Kahverengi','#FF9500','#FF9F0A']};
 /* ---------- Uygulama ikonu rengi (ana ekran / Dock) ---------- */
-const ICN={neurun:['Siyah','#2A2D36','#05060A'],light:['Açık','#F5F7FB','#D5DBE6','#2B2D33'],blue:['Mavi','#4DA3FF','#0A62E8'],music:['Apple Müzik','#FB5C74','#FA233B'],indigo:['İndigo','#7D7AFF','#4B49C9'],purple:['Mor','#C77DEB','#9A3FCB'],red:['Kırmızı','#FF6B61','#E52B20'],orange:['Turuncu','#FFB340','#F28500'],yellow:['Sarı','#FFE066','#F5B700'],green:['Yeşil','#5DD97D','#22A94A'],teal:['Turkuaz','#5AD1DD','#1E9DB4'],graphite:['Grafit','#6B6B70','#2C2C2E']};
+const ICN={neurun:['neurun','#FF3560','#E4063A'],light:['Açık','#F5F7FB','#D5DBE6','#2B2D33'],blue:['Mavi','#4DA3FF','#0A62E8'],music:['Apple Müzik','#FB5C74','#FA233B'],indigo:['İndigo','#7D7AFF','#4B49C9'],purple:['Mor','#C77DEB','#9A3FCB'],red:['Kırmızı','#FF6B61','#E52B20'],orange:['Turuncu','#FFB340','#F28500'],yellow:['Sarı','#FFE066','#F5B700'],green:['Yeşil','#5DD97D','#22A94A'],teal:['Turkuaz','#5AD1DD','#1E9DB4'],graphite:['Grafit','#6B6B70','#2C2C2E']};
 const shade=(h,f)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.substr(i,2),16)*f).toString(16).padStart(2,'0')).join('');
 const ASTR='<rect x="-28" y="-3.65" width="56" height="7.3"/><rect x="-28" y="-3.65" width="56" height="7.3" transform="rotate(60)"/><rect x="-28" y="-3.65" width="56" height="7.3" transform="rotate(120)"/>';
 function makeIcon(k,size,dark){
@@ -1395,11 +1395,15 @@ document.addEventListener('keydown',e=>{
 let splashT=null;
 function playSplash(){
   clearTimeout(splashT);
-  if(home.classList.contains('noanim')){home.dataset.st='c';splashT=setTimeout(()=>{splashT=null;openHome()},500);return}
+  if(home.classList.contains('noanim')){home.dataset.st='c';splashT=setTimeout(()=>{splashT=null;openHome()},700);return}
   home.dataset.st='a';                                            /* rozet belirir, yıldız döner */
-  setTimeout(()=>{home.dataset.st='b'},1750);                      /* yıldız durur, rozet oturur */
-  setTimeout(()=>{home.dataset.st='c'},2250);                      /* logo sağa kayar, neurun yazısı açılır */
-  splashT=setTimeout(()=>{splashT=null;openHome()},3450);          /* arama ekranı */
+  let go=false;
+  const start=()=>{if(go)return;go=true;
+    setTimeout(()=>{home.dataset.st='b'},1500);                    /* yıldız durur, rozet oturur */
+    setTimeout(()=>{home.dataset.st='c'},1900);                    /* logo sağa kayar, neurun yazısı açılır */
+    splashT=setTimeout(()=>{splashT=null;openHome()},3900)};       /* yazı tamamlanıp bir an görünür, sonra arama ekranı */
+  const im=new Image();im.onload=im.onerror=start;im.src='neurun-logo.png';   /* yazı görseli hazır olmadan başlama */
+  if(im.complete)start();setTimeout(start,1500);
 }
 function openHome(){
   if(!home.classList.contains('splash'))return;clearTimeout(splashT);

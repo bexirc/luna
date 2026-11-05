@@ -606,8 +606,8 @@ body{font-weight:var(--w400);background-image:radial-gradient(90% 46% at 12% 0%,
 #home[data-st=a] .pas svg{animation:asPop .9s var(--spring) both}
 #home[data-st=a] .pas .st{animation:stSpin 1.55s cubic-bezier(.22,.8,.18,1) .2s both}
 #home[data-st=b] .pas .bd{animation:bdSettle .5s ease-in-out both}
-#home[data-st=c] .pnw{transition:width 1.4s var(--slide),margin-right 1.4s var(--slide)}
-#home[data-st=c] .pnw i{transition:opacity .8s var(--soft) .15s,transform 1.4s var(--slide),background-color 1.05s var(--soft)}
+#home[data-st=c] .pnw{transition:width 1.2s var(--slide),margin-right 1.2s var(--slide)}
+#home[data-st=c] .pnw i{transition:opacity .6s var(--soft),transform 1.2s var(--slide),background-color 1.05s var(--soft)}
 @keyframes asPop{from{opacity:0;transform:translateY(-50%) scale(.35);filter:blur(10px)}55%{opacity:1}}
 @keyframes stSpin{from{transform:rotate(-420deg)}to{transform:rotate(0)}}
 @keyframes bdSettle{0%,100%{transform:scale(1)}40%{transform:scale(1.07)}}
