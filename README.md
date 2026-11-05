@@ -26,17 +26,17 @@ Derleme yok; tüm dosyalar depo kökünde, klasörsüz ve okunabilir durumda.
 ## Proxy (isteğe bağlı ama önerilir)
 Sözlük, Genius, Yahoo, Yandex, Pinterest ve SoundCloud önerileri bazı tarayıcılarda doğrudan okunamaz.
 1. Cloudflare'de **Workers & Pages → Create Worker** aç, `worker.js` içeriğini yapıştırıp **Deploy** de.
-2. Verilen adresi `config.js` içindeki `LUNAI_PROXY` alanına yaz.
+2. Verilen adresi `config.js` içindeki `NEURUN_PROXY` alanına yaz (eski `LUNAI_PROXY` adı da çalışır).
 
 ## SoundCloud
-Müzik önerileri SoundCloud'dan gelir. `config.js` içindeki `LUNAI_SC_ID` alanına bir client_id yazabilirsin.
+Müzik önerileri SoundCloud'dan gelir. `config.js` içindeki `NEURUN_SC_ID` alanına (eski `LUNAI_SC_ID` adı da çalışır) bir client_id yazabilirsin.
 Boş bırakırsan ve proxy tanımlıysa sayfa client_id'yi kendisi bulmaya çalışır. SoundCloud yanıt vermezse
 öneriler Genius, Apple ve Deezer'dan gelir.
 
 ## Güncelleme
-Dosyaları değiştirdikten sonra `sw.js` içindeki `VERSION` değerini bir artır (ör. `luna-v2`), böylece
+Dosyaları değiştirdikten sonra `sw.js` içindeki `VERSION` değerini bir artır (ör. `neurun-v5`), böylece
 eski önbellek silinir ve herkes yeni sürümü alır.
 
 ## Uygulama olarak kaydetme
 iPhone/iPad Safari: Paylaş → Ana Ekrana Ekle. Mac Safari: Dosya → Dock'a Ekle. Chrome ve Edge: adres çubuğundaki yükle simgesi.
-İkon rengi Görünüm Ayarları → Uygulama İkonu bölümünden seçilir.
+Ana ekranda uygulama adı neurun olarak görünür.

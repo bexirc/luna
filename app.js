@@ -1,3 +1,7 @@
+/* eski (Luna/LunAI) kayıtlarını neurun adına taşı */
+try{[['lunai','neurun'],['lunai_h','neurun_h'],['lunai_learn','neurun_learn'],['lunai_tdk','neurun_tdk'],['luna_note','neurun_note'],['luna_filmwd','neurun_filmwd'],['lunai_inst_seen','neurun_inst_seen'],['lunai_intro','neurun_intro']].forEach(([o,n])=>{const v=localStorage.getItem(o);if(v!==null){if(localStorage.getItem(n)===null)localStorage.setItem(n,v);localStorage.removeItem(o)}})}catch(e){}
+/* veri/ayar dosyalarındaki global adlar: yeni NEURUN_* adları da, eski LUNAI_* adları da okunur */
+const NDB=()=>window.NEURUN_DB||window.LUNAI_DB||{},NBIG=()=>window.NEURUN_BIG||window.LUNAI_BIG||{};
 const $=s=>document.querySelector(s),root=document.documentElement;
 if(navigator.standalone||matchMedia('(display-mode: standalone)').matches)root.classList.add('sa');
 const NSUG=15,NPOP=8,NMUS=20;
@@ -23,38 +27,12 @@ const AI={chatgpt:['ChatGPT',q=>`https://chatgpt.com/?q=${q}`],claude:['Claude',
   deepseek:['DeepSeek',()=>'https://chat.deepseek.com/',1],
   qwen:['Qwen',q=>`https://chat.qwen.ai/?q=${q}`],copilot:['Copilot',q=>`https://copilot.microsoft.com/?q=${q}`]};
 // [açık, koyu, koyuYazı, ad, gradyan açık, gradyan koyu]
-const ACC={blue:['#007AFF','#0A84FF',0,'Mavi','#32ADE6','#64D2FF'],indigo:['#5856D6','#5E5CE6',0,'İndigo','#007AFF','#0A84FF'],
+const ACC={neurun:['#F2214F','#FF3D66',0,'neurun','#FF5A7E','#FF7A97'],blue:['#007AFF','#0A84FF',0,'Mavi','#32ADE6','#64D2FF'],indigo:['#5856D6','#5E5CE6',0,'İndigo','#007AFF','#0A84FF'],
   purple:['#AF52DE','#BF5AF2',0,'Mor','#5856D6','#5E5CE6'],pink:['#FF2D55','#FF375F',0,'Pembe','#AF52DE','#BF5AF2'],
   red:['#FF3B30','#FF453A',0,'Kırmızı','#FF9500','#FF9F0A'],orange:['#FF9500','#FF9F0A',0,'Turuncu','#FFCC00','#FFD60A'],
   yellow:['#FFCC00','#FFD60A',1,'Sarı','#FF9500','#FF9F0A'],green:['#34C759','#30D158',0,'Yeşil','#00C7BE','#63E6E2'],
   mint:['#00C7BE','#63E6E2',1,'Nane','#32ADE6','#64D2FF'],brown:['#A2845E','#AC8E68',0,'Kahverengi','#FF9500','#FF9F0A']};
-/* ---------- Uygulama ikonu rengi (ana ekran / Dock) ---------- */
-const ICN={neurun:['neurun','#FF3560','#E4063A'],light:['Açık','#F5F7FB','#D5DBE6','#2B2D33'],blue:['Mavi','#4DA3FF','#0A62E8'],music:['Apple Müzik','#FB5C74','#FA233B'],indigo:['İndigo','#7D7AFF','#4B49C9'],purple:['Mor','#C77DEB','#9A3FCB'],red:['Kırmızı','#FF6B61','#E52B20'],orange:['Turuncu','#FFB340','#F28500'],yellow:['Sarı','#FFE066','#F5B700'],green:['Yeşil','#5DD97D','#22A94A'],teal:['Turkuaz','#5AD1DD','#1E9DB4'],graphite:['Grafit','#6B6B70','#2C2C2E']};
-const shade=(h,f)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.substr(i,2),16)*f).toString(16).padStart(2,'0')).join('');
-const ASTR='<rect x="-28" y="-3.65" width="56" height="7.3"/><rect x="-28" y="-3.65" width="56" height="7.3" transform="rotate(60)"/><rect x="-28" y="-3.65" width="56" height="7.3" transform="rotate(120)"/>';
-function makeIcon(k,size,dark){
-  const [,a,b,gc]=ICN[k]||ICN.neurun,f=dark?.72:1,c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');
-  const gr=g.createLinearGradient(0,0,0,size);gr.addColorStop(0,shade(a,f));gr.addColorStop(1,shade(b,f));g.fillStyle=gr;g.fillRect(0,0,size,size);
-  const hl=g.createRadialGradient(size*.3,0,0,size*.3,0,size*.9);hl.addColorStop(0,'rgba(255,255,255,'+(dark?.1:.2)+')');hl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=hl;g.fillRect(0,0,size,size);
-  const L=size*.56,T=L*.1305,p=new Path2D();
-  for(const ang of[0,60,120]){const r=ang*Math.PI/180,ux=Math.cos(r),uy=Math.sin(r),vx=-uy,vy=ux;
-    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sy],n)=>{const x=size/2+sx*L/2*ux+sy*T/2*vx,y=size/2+sx*L/2*uy+sy*T/2*vy;n?p.lineTo(x,y):p.moveTo(x,y)});p.closePath()}
-  g.save();g.shadowColor='rgba(0,0,0,.32)';g.shadowBlur=size*.035;g.shadowOffsetY=size*.012;
-  const g2=g.createLinearGradient(0,size/2-L/2,0,size/2+L/2);g2.addColorStop(0,gc||'#FFFFFF');g2.addColorStop(1,gc||'#D8DEEA');g.fillStyle=g2;g.fill(p);g.restore();
-  return c.toDataURL('image/png')}
-let icoSig='';
-async function applyIcon(){
-  const k=ICN[S.appIcon]?S.appIcon:'neurun';if(k===icoSig)return;icoSig=k;
-  const links=[...document.querySelectorAll('link[rel="apple-touch-icon"],link[rel="icon"]')],ml=document.querySelector('link[rel="manifest"]');
-  links.forEach(l=>{if(!l.dataset.orig)l.dataset.orig=l.getAttribute('href')});if(ml&&!ml.dataset.orig)ml.dataset.orig=ml.getAttribute('href');
-  if(k==='neurun'){links.forEach(l=>l.setAttribute('href',l.dataset.orig));if(ml)ml.setAttribute('href',ml.dataset.orig);return}   /* varsayılan: depodaki hazır ikon ve manifest */
-  links.forEach(l=>{l.href=makeIcon(k,180,/dark/.test(l.media||''))});
-  try{if(!ml||!/^https?:/.test(location.protocol))return;
-    const base=await(await fetch(ml.dataset.orig,{cache:'no-cache'})).json();
-    const abs=u=>new URL(u||'./',location.href).href,m={...base,id:abs(base.id||base.start_url),start_url:abs(base.start_url),scope:abs(base.scope),icons:[192,512].map(z=>({src:makeIcon(k,z,false),sizes:z+'x'+z,type:'image/png',purpose:'any'}))};
-    if(k!==icoSig)return;if(applyIcon.u)URL.revokeObjectURL(applyIcon.u);applyIcon.u=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));ml.href=applyIcon.u}catch(e){}
-}
-const DEF={appIcon:'neurun',adult:true,theme:'auto',accent:'blue',scale:100,same:false,sameEngine:'google',web:'google',image:'pinterest',video:'youtube',ai:'chatgpt',hist:false,openApp:false,tlFrom:'auto',tlTo:'tr',fp:Object.fromEntries(PLATS.map(p=>[p[0],true])),modes:null,hidePop:false,autoComp:true,hideFav:false,noAnim:false,histDays:7,music:'apple',luAuto:false,luCall:'',luLen:'normal',luTone:'dengeli',chatSave:true,memAuto:true,profile:{name:'',email:'',phone:'',birth:'',photo:'',city:'',district:''},favs:[]};
+const DEF={adult:true,theme:'auto',accent:'neurun',scale:100,same:false,sameEngine:'google',web:'google',image:'pinterest',video:'youtube',ai:'chatgpt',hist:false,openApp:false,tlFrom:'auto',tlTo:'tr',fp:Object.fromEntries(PLATS.map(p=>[p[0],true])),modes:null,hidePop:false,autoComp:true,hideFav:false,noAnim:false,histDays:7,music:'apple',luAuto:false,luCall:'',luLen:'normal',luTone:'dengeli',chatSave:true,memAuto:true,profile:{name:'',email:'',phone:'',birth:'',photo:'',city:'',district:''},favs:[]};
 const MUSP=[['spotify','Spotify'],['ytm','YouTube Müzik'],['apple','Apple Müzik'],['tidal','Tidal'],['deezer','Deezer'],['soundcloud','SoundCloud']];
 const MODES=[['web','Web'],['url','URL'],['image','Görsel'],['video','Video'],['music','Müzik'],['film','Film/Dizi'],['tl','Çeviri'],['duck','Duck'],['ai','AI']];
 const MUSURL={soundcloud:q=>`https://soundcloud.com/search?q=${q}`,apple:q=>`https://music.apple.com/tr/search?term=${q}`,ytm:q=>`https://music.youtube.com/search?q=${q}`,spotify:q=>`https://open.spotify.com/search/${q}`,tidal:q=>`https://listen.tidal.com/search?q=${q}`,deezer:q=>`https://www.deezer.com/search/${q}`};
@@ -63,7 +41,7 @@ const RET=[[7,'1 Hafta'],[30,'1 Ay'],[90,'3 Ay'],[180,'6 Ay'],[270,'9 Ay'],[365,
 function sane(o){
   o=(o&&typeof o==='object')?o:{};const n={...DEF,favs:[],blocked:[]};
   if(['light','dark','auto'].includes(o.theme))n.theme=o.theme;
-  if(ACC[o.accent])n.accent=o.accent;if(ICN[o.appIcon])n.appIcon=o.appIcon;
+  if(ACC[o.accent])n.accent=o.accent;
   if(Number.isInteger(o.scale)&&o.scale>=80&&o.scale<=125&&o.scale%5===0)n.scale=o.scale;
   n.same=!!o.same;n.adult=o.adult!==false;
   n.blocked=Array.isArray(o.blocked)?[...new Set(o.blocked.filter(x=>typeof x==='string'&&x).map(x=>x.slice(0,120)))].slice(0,500):[];
@@ -88,29 +66,29 @@ function sane(o){
    for(const k of['hidePop','hideFav','noAnim'])n[k]=!!o[k];n.autoComp=o.autoComp!==false}
   return n;
 }
-let S;try{S=sane(JSON.parse(localStorage.getItem('lunai')||'{}'))}catch(e){S=sane({})}
-const save=()=>{try{localStorage.setItem('lunai',JSON.stringify(S))}catch(e){}};
+let S;try{S=sane(JSON.parse(localStorage.getItem('neurun')||'{}'))}catch(e){S=sane({})}
+const save=()=>{try{localStorage.setItem('neurun',JSON.stringify(S))}catch(e){}};
 /* arama geçmişi */
 const HK=['web','url','image','video','music','film','ai'];
 function cleanH(a){return(Array.isArray(a)?a:[]).filter(h=>h&&typeof h.q==='string'&&HK.includes(h.m)&&Number.isFinite(h.t)).map(h=>({id:String(h.id||rnd()),q:h.q.slice(0,200),m:h.m,t:h.t})).slice(0,1000)}
-let H=[];try{H=cleanH(JSON.parse(localStorage.getItem('lunai_h')||'[]'))}catch(e){}
-const saveH=()=>{try{localStorage.setItem('lunai_h',JSON.stringify(H))}catch(e){}};
+let H=[];try{H=cleanH(JSON.parse(localStorage.getItem('neurun_h')||'[]'))}catch(e){}
+const saveH=()=>{try{localStorage.setItem('neurun_h',JSON.stringify(H))}catch(e){}};
 function pruneH(){if(S.histDays){const lim=Date.now()-S.histDays*864e5;H=H.filter(h=>h.t>=lim)}saveH()}
 function recordH(m,t){if(!S.hist||!t)return;H=H.filter(h=>!(h.m===m&&h.q.toLowerCase()===t.toLowerCase()));H.unshift({id:rnd(),q:t.slice(0,200),m,t:Date.now()});H=H.slice(0,1000);pruneH()}
 pruneH();
 /* öğrenilen veri seti: sonuçlarda çıkmayan aramalar düzeltilip kalıcı kaydedilir */
 const LK=['web','image','video','music'];
 function cleanL(a){return(Array.isArray(a)?a:[]).filter(x=>x&&typeof x.t==='string'&&x.t.trim()&&LK.includes(x.m)&&Number.isFinite(x.w)).map(x=>({t:x.t.slice(0,120),m:x.m,w:x.w,ts:Number.isFinite(x.ts)?x.ts:0,o:Array.isArray(x.o)?x.o.filter(y=>typeof y==='string').slice(0,5):[]})).slice(0,800)}
-let LRN=[];try{LRN=cleanL(JSON.parse(localStorage.getItem('lunai_learn')||'[]'))}catch(e){}
-const saveL=()=>{try{localStorage.setItem('lunai_learn',JSON.stringify(LRN))}catch(e){}};
+let LRN=[];try{LRN=cleanL(JSON.parse(localStorage.getItem('neurun_learn')||'[]'))}catch(e){}
+const saveL=()=>{try{localStorage.setItem('neurun_learn',JSON.stringify(LRN))}catch(e){}};
 const LTY=new Map();
 
 /* ---------- Görünüm ---------- */
 const mq=matchMedia('(prefers-color-scheme: dark)');
 const isDark=()=>S.theme==='dark'||(S.theme==='auto'&&mq.matches);
 function sysType(){let f=1,bt=false;try{if(CSS.supports('font','-apple-system-body')){const e=document.createElement('span');e.style.cssText='font:-apple-system-body;position:absolute;visibility:hidden;pointer-events:none';document.body.appendChild(e);const cs=getComputedStyle(e);f=Math.min(1.6,Math.max(.8,(parseFloat(cs.fontSize)||17)/17));bt=(parseInt(cs.fontWeight,10)||400)>=600;e.remove()}}catch(x){}return{f,bt}}
-function apply(){try{applyIcon()}catch(e){}
-  const d=isDark(),a=ACC[S.accent]||ACC.blue;
+function apply(){
+  const d=isDark(),a=ACC[S.accent]||ACC.neurun;
   root.dataset.theme=d?'dark':'light';
   root.style.setProperty('--accent',d?a[1]:a[0]);
   root.style.setProperty('--accent2',d?a[5]:a[4]);
@@ -234,7 +212,7 @@ function musicRow(s,i,sel){
 }
 const fold=x=>String(x||'').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').trim();
 let SONGS=null;
-function songsLoad(){if(SONGS)return SONGS;const raw=(window.LUNAI_DB||{}).songs||'';
+function songsLoad(){if(SONGS)return SONGS;const raw=NDB().songs||'';
   return SONGS=raw?raw.split('\n').map(l=>{const a=l.split('|');return{k:a[0],w:+a[1],a:a[2],b:a[3],f:fold(a[2]),g:fold(a[3])}}):[]}
 function localSongs(t){const q=fold(t),ws=q.split(/\s+/).filter(Boolean);if(q.length<2)return[];const r=[];
   for(const x of songsLoad()){const key=x.k==='A'?x.f:x.f+' '+x.g,kw=key.split(' ');
@@ -305,7 +283,7 @@ function lrnSug(m,t){const k=m==='duck'?'web':m;if(!LRN.length)return[];
   return r.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]).slice(0,4).map(z=>z[3])}
 const BIG={},FMB={'ı':'i','ö':'o','ü':'u','ş':'s','ç':'c','ğ':'g','İ':'i','â':'a','î':'i','û':'u'};
 const bkey=c=>{c=FMB[c]||c;const x=c.charCodeAt(0);return x>=97&&x<=122?x-97:x>=48&&x<=57?x-22:x===32?36:37};
-async function bigLoad(k){if(BIG[k]!==undefined)return;const b64=(window.LUNAI_BIG||{})[k];if(!b64||typeof DecompressionStream==='undefined')return;BIG[k]=null;
+async function bigLoad(k){if(BIG[k]!==undefined)return;const b64=NBIG()[k];if(!b64||typeof DecompressionStream==='undefined')return;BIG[k]=null;
   try{const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
     const s=await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
     let n=1;for(let i=s.indexOf('\n');i>=0;i=s.indexOf('\n',i+1))n++;
@@ -314,7 +292,7 @@ async function bigLoad(k){if(BIG[k]!==undefined)return;const b64=(window.LUNAI_B
     for(let i=0;i<n;i++){const a=O[i];const kk=bkey(s[a]||' ')*38+bkey(s[a+1]&&s[a+1]!=='\n'?s[a+1]:' ');key[i]=kk;BS[kk+1]++}
     for(let i=0;i<1445;i++)BS[i+1]+=BS[i];
     const pos=BS.slice();for(let i=0;i<n;i++)B[pos[key[i]]++]=i;
-    BIG[k]={s,O,B,BS,n};delete window.LUNAI_BIG[k];
+    BIG[k]={s,O,B,BS,n};delete NBIG()[k];
     const t=QV().trim();if(t&&(mode===k||(k==='web'&&mode==='duck')||(['web','image','video','duck'].includes(mode)&&['web','image','video'].includes(k)))){if(mode==='url')onType();else{sugs=mergeDb(sugs,t);drawSugg()}}
   }catch(e){BIG[k]=null}}
 function bigSug(m,t,max){const k=m==='duck'?'web':m,D=BIG[k];if(!D)return[];const q=fold(t);if(q.length<2)return[];
@@ -360,8 +338,8 @@ function _drawSugg(){
   box.innerHTML=items.length?`<div class="grp">${items.map((s,i)=>rowHTML(s,mode==='url'?favIcon(host(s)):'',typing&&i===selI)).join('')}</div>`:'';
 }
 /* motor önerileri */
-const PROXY=(window.LUNAI_PROXY||'').replace(/\/$/,'');
-const SCID=String(window.LUNAI_SC_ID||'').trim(),SC_OK=!!(PROXY||SCID);
+const PROXY=(window.NEURUN_PROXY||window.LUNAI_PROXY||'').replace(/\/$/,'');
+const SCID=String(window.NEURUN_SC_ID||window.LUNAI_SC_ID||'').trim(),SC_OK=!!(PROXY||SCID);
 const scMap=x=>{if(!x||!x.title)return null;let title=String(x.title).trim(),artist=(x.publisher_metadata&&x.publisher_metadata.artist)||'';
   const m=/^(.{2,45}?)\s[-–—]\s(.{2,})$/.exec(title);if(m){artist=m[1];title=m[2]}
   return{title,artist:artist||(x.user&&x.user.username)||'',cover:String(x.artwork_url||(x.user&&x.user.avatar_url)||'').replace('-large.','-t200x200.'),line:'',sc:x.permalink_url||'',tr:false}};
@@ -370,14 +348,14 @@ async function soundcloud(t,signal){
   const e=encodeURIComponent(t),u=PROXY?PROXY+'/?sc='+e:'https://api-v2.soundcloud.com/search/tracks?q='+e+'&client_id='+SCID+'&limit=15&app_locale=tr';
   const j=await(await fetch(u,{signal})).json();
   return(j.collection||[]).map(scMap).filter(Boolean)}
-async function lunaMusic(t,signal){
+async function neurunMusic(t,signal){
   if(!PROXY)return[];
   const j=await(await fetch(PROXY+'/?mode=music&n=30&q='+encodeURIComponent(t),{signal})).json();
   return(j.results||[]).filter(x=>x&&x.title).map(x=>({title:x.title,artist:x.artist||'',cover:x.cover||'',line:'',url:x.source==='Apple Music'?x.url:'',dz:x.source==='Deezer'?x.url:'',sc:x.source==='SoundCloud'?x.url:'',tr:false}))}
 const px=u=>PROXY&&/^https:\/\/(sozluk\.gov\.tr|genius\.com|search\.yahoo\.com|duckduckgo\.com|suggest\.yandex\.com|www\.pinterest\.com|api\.bing\.com)\//.test(u)?PROXY+'/?u='+encodeURIComponent(u):u;
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 const DBX={};
-function dbLoad(k){if(DBX[k])return DBX[k];const raw=(window.LUNAI_DB||{})[k]||'';
+function dbLoad(k){if(DBX[k])return DBX[k];const raw=NDB()[k]||'';
   return DBX[k]=raw?raw.split('\n').map(l=>{const a=l.split('|');return(k==='web'||k==='url')?{e:'',w:+a[0],t:a[1]}:{e:a[0],w:+a[1],t:a[2]}}):[]}
 const dbUrl=()=>dbLoad('url').map(x=>x.t);
 function dbSug(m,t){const k=m==='duck'?'web':m;if(k!=='web'&&k!=='image'&&k!=='video')return[];
@@ -387,9 +365,9 @@ function dbSug(m,t){const k=m==='duck'?'web':m;if(k!=='web'&&k!=='image'&&k!=='v
     const s=y.startsWith(q)?0:ws.every(w=>yw.some(z=>z.startsWith(w)))?1:y.includes(q)?2:9;if(s<9)r.push([s,-x.w,y])}
   return r.sort((a,b)=>a[0]-b[0]||a[1]-b[1]).slice(0,8).map(z=>z[2]).filter(y=>y!==q)}
 let WORDS=null;
-async function wordsInit(){if(WORDS)return;let l=[];try{const c=localStorage.getItem('lunai_tdk');if(c)l=c.split('\n')}catch(e){}
+async function wordsInit(){if(WORDS)return;let l=[];try{const c=localStorage.getItem('neurun_tdk');if(c)l=c.split('\n')}catch(e){}
   if(l.length<1000){const u='https://sozluk.gov.tr/autocomplete.json';for(const x of[u,px(u)]){try{const j=await(await fetch(x)).json();const a=j.map(y=>typeof y==='string'?y:y&&y.madde).filter(Boolean).map(y=>y.toLocaleLowerCase('tr'));
-    if(a.length>1000){l=[...new Set(a)].sort();try{localStorage.setItem('lunai_tdk',l.join('\n'))}catch(e){}break}}catch(e){}}}
+    if(a.length>1000){l=[...new Set(a)].sort();try{localStorage.setItem('neurun_tdk',l.join('\n'))}catch(e){}break}}catch(e){}}}
   vocInit();for(const w of l)vocAdd(w,0);FXC.clear();
   const v=new Set(l);for(const k of['web','image','video'])for(const x of dbLoad(k))for(const w of x.t.split(' '))if(/^[a-zçğıöşüâîû]{3,}$/.test(w))v.add(w);
   WORDS=[...v].sort()}
@@ -544,10 +522,10 @@ async function loadTops(){if(!TOPS.length&&SC_OK){try{const r=await fetch(PROXY?
 function deezer(t){return new Promise((res,rej)=>{const cb='dz'+rnd(),sc=document.createElement('script'),end=()=>{sc.remove();delete window[cb]};
   window[cb]=j=>{end();res((j.data||[]).map(x=>({title:x.title,artist:(x.artist&&x.artist.name)||'',cover:(x.album&&x.album.cover_medium)||'',line:'',dz:x.link})))};
   sc.onerror=()=>{end();rej()};sc.src='https://api.deezer.com/search?output=jsonp&limit=10&callback='+cb+'&q='+encodeURIComponent(t);document.head.appendChild(sc)})}
-const MSRC={luna:['neurun',(t,sg)=>lunaMusic(t,sg)],soundcloud:['SoundCloud',(t,sg)=>soundcloud(t,sg)],apple:['Apple Music',(t,sg)=>itunes(t,sg)],deezer:['Deezer',t=>deezer(t)],genius:['Genius',(t,sg)=>genius(t,sg)]};
+const MSRC={neurun:['neurun',(t,sg)=>neurunMusic(t,sg)],soundcloud:['SoundCloud',(t,sg)=>soundcloud(t,sg)],apple:['Apple Music',(t,sg)=>itunes(t,sg)],deezer:['Deezer',t=>deezer(t)],genius:['Genius',(t,sg)=>genius(t,sg)]};
 async function fetchMusic(t){
   if(mAbort)mAbort.abort();mAbort=new AbortController();const sig=mAbort.signal;
-  const own=PROXY?'luna':SC_OK?'soundcloud':(MSRC[S.music]&&S.music!=='soundcloud'?S.music:'genius'),seen=new Set();let list=[],ok=false,pend=0;sLoad=true;const nt=norm(t),rel=x=>{const y=norm(x.title+x.artist);return y.startsWith(nt)||norm(x.title).startsWith(nt)?0:y.includes(nt)?1:2};
+  const own=PROXY?'neurun':SC_OK?'soundcloud':(MSRC[S.music]&&S.music!=='soundcloud'?S.music:'genius'),seen=new Set();let list=[],ok=false,pend=0;sLoad=true;const nt=norm(t),rel=x=>{const y=norm(x.title+x.artist);return y.startsWith(nt)||norm(x.title).startsWith(nt)?0:y.includes(nt)?1:2};
   const fin=()=>{if(QV().trim()!==t||sig.aborted)return;const m=x=>lyricRest(x.line,t)?0:1;
     msugs=list.map((x,i)=>[x,i]).sort((a,b)=>(a[0].lrn?-1:a[0].local?2:a[0].plat?1:0)-(b[0].lrn?-1:b[0].local?2:b[0].plat?1:0)||lang(a[0])-lang(b[0])||rel(a[0])-rel(b[0])||m(a[0])-m(b[0])||a[1]-b[1]).map(z=>z[0]).filter(x=>okSug(x.title+' '+x.artist)).slice(0,NMUS);
     comp=computeComp();selI=comp?0:-1;renderGhost();drawSugg()};
@@ -714,7 +692,7 @@ const SI={
  ret:sico('#FFC857','#FF9F0A','<rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>'),
  same:sico('#4FD6D0','#14B8B0','<path d="M5 9h13l-3-3M19 15H6l3 3"/>')};
 SI.music=sico('#FF7A93','#FF2D55','<circle cx="8" cy="17" r="3"/><path d="M11 17V4.5l8 2v3.5"/>');
-SI.luna=sico('#5AC8FA','#007AFF','<path d="M20 13.2A8.5 8.5 0 1 1 10.8 4 6.6 6.6 0 0 0 20 13.2z" fill="currentColor" stroke="none"/>');
+SI.neurun=sico('#5AC8FA','#007AFF','<path d="M20 13.2A8.5 8.5 0 1 1 10.8 4 6.6 6.6 0 0 0 20 13.2z" fill="currentColor" stroke="none"/>');
 SI.chat=sico('#6BD38A','#34C759','<path d="M12 4C7.6 4 4 6.9 4 10.5c0 1.9 1 3.6 2.7 4.8-.1 1-.6 2-1.4 2.7 1.5-.1 2.8-.6 3.8-1.4.8.2 1.8.4 2.9.4 4.4 0 8-2.9 8-6.5S16.4 4 12 4z" fill="currentColor" stroke="none"/>');
 SI.app=sico('#64D2FF','#32ADE6','<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 18.5v-11A1.5 1.5 0 015.5 6H10"/>');
 SI.mem=sico('#FFC857','#FF9F0A','<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/>');
@@ -733,7 +711,6 @@ const PAGES={
   +grp('',nav('Görünüm Ayarları','appearance','',SI.appearance)+nav('Arama Yönetimi','search','',SI.search)+nav('Varsayılan AI','ai',AI[S.ai][0],SI.ai)+nav('Veri Yönetimi','data','',SI.data)+nav('Hakkında','about','',SI.about))},
  appearance:()=>grp('Mod',`<div class="seg" role="radiogroup">${[['light','Açık'],['dark','Koyu'],['auto','Otomatik']].map(([v,l])=>`<button role="radio" aria-checked="${S.theme===v}" class="${S.theme===v?'on':''}" data-set="theme" data-val="${v}">${l}</button>`).join('')}</div>`)
   +grp('Vurgu Rengi',`<div class="swg" role="radiogroup">${Object.entries(ACC).map(([k,a])=>`<button role="radio" aria-checked="${S.accent===k}" aria-label="${a[3]}" class="${S.accent===k?'on':''}" data-set="accent" data-val="${k}" style="--c:${isDark()?a[1]:a[0]};--on2:${a[2]?'#000':'#fff'}"><i>${S.accent===k?tickW:''}</i></button>`).join('')}</div>`)
-  +grp('Uygulama İkonu',`<div class="icg" role="radiogroup">${Object.entries(ICN).map(([k,a])=>`<button role="radio" aria-checked="${S.appIcon===k}" aria-label="${a[0]}" class="${S.appIcon===k?'on':''}" data-set="appIcon" data-val="${k}"><i style="background:linear-gradient(180deg,${a[1]},${a[2]})"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="${a[3]||'#fff'}" transform="translate(50 50)">${ASTR}</g></svg></i><span>${a[0]}</span></button>`).join('')}</div>`,'Ana ekrana ya da Dock’a eklediğin uygulamanın ikonu. Daha önce eklediysen yeni rengi görmek için kaldırıp yeniden ekle.')
 +grp('Ekran Ölçeklendirme',`<div class="row"><span class="grow">Ölçek</span><span class="det">%${S.scale}</span><div class="step"><button data-act="sc-" aria-label="Küçült" ${S.scale<=80?'disabled':''}>−</button><button data-act="sc+" aria-label="Büyüt" ${S.scale>=125?'disabled':''}>+</button></div></div>`,'Varsayılan %100. %80 ile %125 arasında 5’in katları.')
   +grp('Ana Ekran',nav('Arama Düğmeleri','modesEd','',SI.appearance)+trow(SI.search,'Popüler aramaları gizle','hidePop')+trow(SI.search,'Aramaları otomatik tamamla','autoComp')+trow(SI.same,'Favorileri gizle','hideFav')+trow(SI.appearance,'Logo animasyonlarını kapat','noAnim'))
    +`<div class="gap">`+grp('',`<button class="row hasi red" data-act="rst-app">${SI.rst}<span>Görünümü Sıfırla</span></button>`)+`</div>`,
@@ -1102,11 +1079,11 @@ function smartCard(t){
   return null}
 setInterval(()=>{const l=document.querySelectorAll('[data-clock]');if(l.length){const s=new Date().toLocaleTimeString('tr-TR');l.forEach(e=>e.textContent=s)}},1000);
 /* not defteri */
-let noteDraft='';try{noteDraft=localStorage.getItem('luna_note')||''}catch(e){}
+let noteDraft='';try{noteDraft=localStorage.getItem('neurun_note')||''}catch(e){}
 function noteOn(){return mode==='web'&&q.value.toLowerCase()==='not'}
 const COPYIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 017.5 4H15"/></svg>';
 function noteHTML(){return `<div class="note"><button class="nbtn nc" data-act="note-copy" aria-label="Kopyala">${COPYIC}Kopyala</button><textarea id="noteTa" placeholder="Notunu yaz…" aria-label="Not" autocapitalize="sentences">${esc(noteDraft)}</textarea><button class="nbtn ns" data-act="note-save">Kaydet</button></div>`}
-document.addEventListener('input',e=>{if(e.target&&e.target.id==='noteTa'){noteDraft=e.target.value;try{localStorage.setItem('luna_note',noteDraft)}catch(_){}}});
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='noteTa'){noteDraft=e.target.value;try{localStorage.setItem('neurun_note',noteDraft)}catch(_){}}});
 const DISTBLOB='Adana:Aladağ,Ceyhan,Çukurova,Feke,İmamoğlu,Karaisalı,Karataş,Kozan,Pozantı,Saimbeyli,Sarıçam,Seyhan,Tufanbeyli,Yumurtalık,Yüreğir;Adıyaman:Besni,Çelikhan,Gerger,Gölbaşı,Kahta,Merkez,Samsat,Sincik,Tut;Afyonkarahisar:Başmakçı,Bayat,Bolvadin,Çay,Çobanlar,Dazkırı,Dinar,Emirdağ,Evciler,Hocalar,İhsaniye,İscehisar,Kızılören,Merkez,Sandıklı,Sinanpaşa,Sultandağı,Şuhut;Ağrı:Diyadin,Doğubayazıt,Eleşkirt,Hamur,Merkez,Patnos,Taşlıçay,Tutak;Amasya:Göynücek,Gümüşhacıköy,Hamamözü,Merkez,Merzifon,Suluova,Taşova;Ankara:Akyurt,Altındağ,Ayaş,Bala,Beypazarı,Çamlıdere,Çankaya,Çubuk,Elmadağ,Etimesgut,Evren,Gölbaşı,Güdül,Haymana,Kahramankazan,Kalecik,Keçiören,Kızılcahamam,Mamak,Nallıhan,Polatlı,Pursaklar,Sincan,Şereflikoçhisar,Yenimahalle;Antalya:Akseki,Aksu,Alanya,Demre,Döşemealtı,Elmalı,Finike,Gazipaşa,Gündoğmuş,İbradı,Kaş,Kemer,Kepez,Konyaaltı,Korkuteli,Kumluca,Manavgat,Muratpaşa,Serik;Artvin:Ardanuç,Arhavi,Borçka,Hopa,Kemalpaşa,Merkez,Murgul,Şavşat,Yusufeli;Aydın:Bozdoğan,Buharkent,Çine,Didim,Efeler,Germencik,İncirliova,Karacasu,Karpuzlu,Koçarlı,Köşk,Kuşadası,Kuyucak,Nazilli,Söke,Sultanhisar,Yenipazar;Balıkesir:Altıeylül,Ayvalık,Balya,Bandırma,Bigadiç,Burhaniye,Dursunbey,Edremit,Erdek,Gömeç,Gönen,Havran,İvrindi,Karesi,Kepsut,Manyas,Marmara,Savaştepe,Sındırgı,Susurluk;Bilecik:Bozüyük,Gölpazarı,İnhisar,Merkez,Osmaneli,Pazaryeri,Söğüt,Yenipazar;Bingöl:Adaklı,Genç,Karlıova,Kiğı,Merkez,Solhan,Yayladere,Yedisu;Bitlis:Adilcevaz,Ahlat,Güroymak,Hizan,Merkez,Mutki,Tatvan;Bolu:Dörtdivan,Gerede,Göynük,Kıbrıscık,Mengen,Merkez,Mudurnu,Seben,Yeniçağa;Burdur:Ağlasun,Altınyayla,Bucak,Çavdır,Çeltikçi,Gölhisar,Karamanlı,Kemer,Merkez,Tefenni,Yeşilova;Bursa:Büyükorhan,Gemlik,Gürsu,Harmancık,İnegöl,İznik,Karacabey,Keles,Kestel,Mudanya,Mustafakemalpaşa,Nilüfer,Orhaneli,Orhangazi,Osmangazi,Yenişehir,Yıldırım;Çanakkale:Ayvacık,Bayramiç,Biga,Bozcaada,Çan,Eceabat,Ezine,Gelibolu,Gökçeada,Lapseki,Merkez,Yenice;Çankırı:Atkaracalar,Bayramören,Çerkeş,Eldivan,Ilgaz,Kızılırmak,Korgun,Kurşunlu,Merkez,Orta,Şabanözü,Yapraklı;Çorum:Alaca,Bayat,Boğazkale,Dodurga,İskilip,Kargı,Laçin,Mecitözü,Merkez,Oğuzlar,Ortaköy,Osmancık,Sungurlu,Uğurludağ;Denizli:Acıpayam,Babadağ,Baklan,Bekilli,Beyağaç,Bozkurt,Buldan,Çal,Çameli,Çardak,Çivril,Güney,Honaz,Kale,Merkezefendi,Pamukkale,Sarayköy,Serinhisar,Tavas;Diyarbakır:Bağlar,Bismil,Çermik,Çınar,Çüngüş,Dicle,Eğil,Ergani,Hani,Hazro,Kayapınar,Kocaköy,Kulp,Lice,Silvan,Sur,Yenişehir;Edirne:Enez,Havsa,İpsala,Keşan,Lalapaşa,Meriç,Merkez,Süloğlu,Uzunköprü;Elazığ:Ağın,Alacakaya,Arıcak,Baskil,Karakoçan,Keban,Kovancılar,Maden,Merkez,Palu,Sivrice;Erzincan:Çayırlı,İliç,Kemah,Kemaliye,Merkez,Otlukbeli,Refahiye,Tercan,Üzümlü;Erzurum:Aşkale,Aziziye,Çat,Hınıs,Horasan,İspir,Karaçoban,Karayazı,Köprüköy,Narman,Oltu,Olur,Palandöken,Pasinler,Pazaryolu,Şenkaya,Tekman,Tortum,Uzundere,Yakutiye;Eskişehir:Alpu,Beylikova,Çifteler,Günyüzü,Han,İnönü,Mahmudiye,Mihalgazi,Mihalıççık,Odunpazarı,Sarıcakaya,Seyitgazi,Sivrihisar,Tepebaşı;Gaziantep:Araban,İslahiye,Karkamış,Nizip,Nurdağı,Oğuzeli,Şahinbey,Şehitkamil,Yavuzeli;Giresun:Alucra,Bulancak,Çamoluk,Çanakçı,Dereli,Doğankent,Espiye,Eynesil,Görele,Güce,Keşap,Merkez,Piraziz,Şebinkarahisar,Tirebolu,Yağlıdere;Gümüşhane:Kelkit,Köse,Kürtün,Merkez,Şiran,Torul;Hakkâri:Çukurca,Derecik,Merkez,Şemdinli,Yüksekova;Hatay:Altınözü,Antakya,Arsuz,Belen,Defne,Dörtyol,Erzin,Hassa,İskenderun,Kırıkhan,Kumlu,Payas,Reyhanlı,Samandağ,Yayladağı;Isparta:Aksu,Atabey,Eğirdir,Gelendost,Gönen,Keçiborlu,Merkez,Senirkent,Sütçüler,Şarkikaraağaç,Uluborlu,Yalvaç,Yenişarbademli;Mersin:Akdeniz,Anamur,Aydıncık,Bozyazı,Çamlıyayla,Erdemli,Gülnar,Mezitli,Mut,Silifke,Tarsus,Toroslar,Yenişehir;İstanbul:Adalar,Arnavutköy,Ataşehir,Avcılar,Bağcılar,Bahçelievler,Bakırköy,Başakşehir,Bayrampaşa,Beşiktaş,Beykoz,Beylikdüzü,Beyoğlu,Büyükçekmece,Çatalca,Çekmeköy,Esenler,Esenyurt,Eyüpsultan,Fatih,Gaziosmanpaşa,Güngören,Kadıköy,Kağıthane,Kartal,Küçükçekmece,Maltepe,Pendik,Sancaktepe,Sarıyer,Silivri,Sultanbeyli,Sultangazi,Şile,Şişli,Tuzla,Ümraniye,Üsküdar,Zeytinburnu;İzmir:Aliağa,Balçova,Bayındır,Bayraklı,Bergama,Beydağ,Bornova,Buca,Çeşme,Çiğli,Dikili,Foça,Gaziemir,Güzelbahçe,Karabağlar,Karaburun,Karşıyaka,Kemalpaşa,Kınık,Kiraz,Konak,Menderes,Menemen,Narlıdere,Ödemiş,Seferihisar,Selçuk,Tire,Torbalı,Urla;Kars:Akyaka,Arpaçay,Digor,Kağızman,Merkez,Sarıkamış,Selim,Susuz;Kastamonu:Abana,Ağlı,Araç,Azdavay,Bozkurt,Cide,Çatalzeytin,Daday,Devrekani,Doğanyurt,Hanönü,İhsangazi,İnebolu,Küre,Merkez,Pınarbaşı,Seydiler,Şenpazar,Taşköprü,Tosya;Kayseri:Akkışla,Bünyan,Develi,Felahiye,Hacılar,İncesu,Kocasinan,Melikgazi,Özvatan,Pınarbaşı,Sarıoğlan,Sarız,Talas,Tomarza,Yahyalı,Yeşilhisar;Kırklareli:Babaeski,Demirköy,Kofçaz,Lüleburgaz,Merkez,Pehlivanköy,Pınarhisar,Vize;Kırşehir:Akçakent,Akpınar,Boztepe,Çiçekdağı,Kaman,Merkez,Mucur;Kocaeli:Başiskele,Çayırova,Darıca,Derince,Dilovası,Gebze,Gölcük,İzmit,Kandıra,Karamürsel,Kartepe,Körfez;Konya:Ahırlı,Akören,Akşehir,Altınekin,Beyşehir,Bozkır,Cihanbeyli,Çeltik,Çumra,Derbent,Derebucak,Doğanhisar,Emirgazi,Ereğli,Güneysınır,Hadim,Halkapınar,Hüyük,Ilgın,Kadınhanı,Karapınar,Karatay,Kulu,Meram,Sarayönü,Selçuklu,Seydişehir,Taşkent,Tuzlukçu,Yalıhüyük,Yunak;Kütahya:Altıntaş,Aslanapa,Çavdarhisar,Domaniç,Dumlupınar,Emet,Gediz,Hisarcık,Merkez,Pazarlar,Simav,Şaphane,Tavşanlı;Malatya:Akçadağ,Arapgir,Arguvan,Battalgazi,Darende,Doğanşehir,Doğanyol,Hekimhan,Kale,Kuluncak,Pütürge,Yazıhan,Yeşilyurt;Manisa:Ahmetli,Akhisar,Alaşehir,Demirci,Gölmarmara,Gördes,Kırkağaç,Köprübaşı,Kula,Salihli,Sarıgöl,Saruhanlı,Selendi,Soma,Şehzadeler,Turgutlu,Yunusemre;Kahramanmaraş:Afşin,Andırın,Çağlayancerit,Dulkadiroğlu,Ekinözü,Elbistan,Göksun,Nurhak,Onikişubat,Pazarcık,Türkoğlu;Mardin:Artuklu,Dargeçit,Derik,Kızıltepe,Mazıdağı,Midyat,Nusaybin,Ömerli,Savur,Yeşilli;Muğla:Bodrum,Dalaman,Datça,Fethiye,Kavaklıdere,Köyceğiz,Marmaris,Menteşe,Milas,Ortaca,Seydikemer,Ula,Yatağan;Muş:Bulanık,Hasköy,Korkut,Malazgirt,Merkez,Varto;Nevşehir:Acıgöl,Avanos,Derinkuyu,Gülşehir,Hacıbektaş,Kozaklı,Merkez,Ürgüp;Niğde:Altunhisar,Bor,Çamardı,Çiftlik,Merkez,Ulukışla;Ordu:Akkuş,Altınordu,Aybastı,Çamaş,Çatalpınar,Çaybaşı,Fatsa,Gölköy,Gülyalı,Gürgentepe,İkizce,Kabadüz,Kabataş,Korgan,Kumru,Mesudiye,Perşembe,Ulubey,Ünye;Rize:Ardeşen,Çamlıhemşin,Çayeli,Derepazarı,Fındıklı,Güneysu,Hemşin,İkizdere,İyidere,Kalkandere,Merkez,Pazar;Sakarya:Adapazarı,Akyazı,Arifiye,Erenler,Ferizli,Geyve,Hendek,Karapürçek,Karasu,Kaynarca,Kocaali,Pamukova,Sapanca,Serdivan,Söğütlü,Taraklı;Samsun:Alaçam,Asarcık,Atakum,Ayvacık,Bafra,Canik,Çarşamba,Havza,İlkadım,Kavak,Ladik,Salıpazarı,Tekkeköy,Terme,Vezirköprü,Yakakent,19 Mayıs;Siirt:Baykan,Eruh,Kurtalan,Merkez,Pervari,Şirvan,Tillo;Sinop:Ayancık,Boyabat,Dikmen,Durağan,Erfelek,Gerze,Merkez,Saraydüzü,Türkeli;Sivas:Akıncılar,Altınyayla,Divriği,Doğanşar,Gemerek,Gölova,Gürün,Hafik,İmranlı,Kangal,Koyulhisar,Merkez,Suşehri,Şarkışla,Ulaş,Yıldızeli,Zara;Tekirdağ:Çerkezköy,Çorlu,Ergene,Hayrabolu,Kapaklı,Malkara,Marmaraereğlisi,Muratlı,Saray,Süleymanpaşa,Şarköy;Tokat:Almus,Artova,Başçiftlik,Erbaa,Merkez,Niksar,Pazar,Reşadiye,Sulusaray,Turhal,Yeşilyurt,Zile;Trabzon:Akçaabat,Araklı,Arsin,Beşikdüzü,Çarşıbaşı,Çaykara,Dernekpazarı,Düzköy,Hayrat,Köprübaşı,Maçka,Of,Ortahisar,Sürmene,Şalpazarı,Tonya,Vakfıkebir,Yomra;Tunceli:Çemişgezek,Hozat,Mazgirt,Merkez,Nazımiye,Ovacık,Pertek,Pülümür;Şanlıurfa:Akçakale,Birecik,Bozova,Ceylanpınar,Eyyübiye,Halfeti,Haliliye,Harran,Hilvan,Karaköprü,Siverek,Suruç,Viranşehir;Uşak:Banaz,Eşme,Karahallı,Merkez,Sivaslı,Ulubey;Van:Bahçesaray,Başkale,Çaldıran,Çatak,Edremit,Erciş,Gevaş,Gürpınar,İpekyolu,Muradiye,Özalp,Saray,Tuşba;Yozgat:Akdağmadeni,Aydıncık,Boğazlıyan,Çandır,Çayıralan,Çekerek,Kadışehri,Merkez,Saraykent,Sarıkaya,Sorgun,Şefaatli,Yenifakılı,Yerköy;Zonguldak:Alaplı,Çaycuma,Devrek,Ereğli,Gökçebey,Kilimli,Kozlu,Merkez;Aksaray:Ağaçören,Eskil,Gülağaç,Güzelyurt,Merkez,Ortaköy,Sarıyahşi,Sultanhanı;Bayburt:Aydıntepe,Demirözü,Merkez;Karaman:Ayrancı,Başyayla,Ermenek,Kazımkarabekir,Merkez,Sarıveliler;Kırıkkale:Bahşılı,Balışeyh,Çelebi,Delice,Karakeçili,Keskin,Merkez,Sulakyurt,Yahşihan;Batman:Beşiri,Gercüş,Hasankeyf,Kozluk,Merkez,Sason;Şırnak:Beytüşşebap,Cizre,Güçlükonak,İdil,Merkez,Silopi,Uludere;Bartın:Amasra,Kurucaşile,Merkez,Ulus;Ardahan:Çıldır,Damal,Göle,Hanak,Merkez,Posof;Iğdır:Aralık,Karakoyunlu,Merkez,Tuzluca;Yalova:Altınova,Armutlu,Çınarcık,Çiftlikköy,Merkez,Termal;Karabük:Eflani,Eskipazar,Merkez,Ovacık,Safranbolu,Yenice;Kilis:Elbeyli,Merkez,Musabeyli,Polateli;Osmaniye:Bahçe,Düziçi,Hasanbeyli,Kadirli,Merkez,Sumbas,Toprakkale;Düzce:Akçakoca,Cumayeri,Çilimli,Gölyaka,Gümüşova,Kaynaşlı,Merkez,Yığılca';const DIST={};DISTBLOB.split(';').forEach(x=>{const i=x.indexOf(':');DIST[x.slice(0,i)]=x.slice(i+1).split(',')});
 
 /* ---------- Siteyi uygulamasında aç ---------- */
@@ -1205,12 +1182,12 @@ async function wdLatest(){
   catch(e){return[]}finally{clearTimeout(tm)}}
 async function loadFilms(){
   loadFilmDB();if(!FILM)FILM={new:[],top:[],wd:[]};
-  if(!FILM.wd.length){try{const c=JSON.parse(localStorage.getItem('luna_filmwd')||'null');if(c&&Date.now()-c.t<432e5)FILM.wd=c.items}catch(e){}}
+  if(!FILM.wd.length){try{const c=JSON.parse(localStorage.getItem('neurun_filmwd')||'null');if(c&&Date.now()-c.t<432e5)FILM.wd=c.items}catch(e){}}
   if(mode==='film'&&!QV().trim())drawSugg();
   if(FLOADING||(FILM.new.length&&FILM.top.length))return;FLOADING=true;const jobs=[];
   if(PROXY){const get=async l=>{try{const j=await(await fetch(PROXY+'/?mode=film&n=20&list='+l)).json();return(j.results||[]).filter(x=>x&&x.title)}catch(e){return[]}};
     jobs.push(get('new').then(a=>{if(a.length)FILM.new=a}),get('top').then(b=>{if(b.length)FILM.top=b}))}
-  if(!FILM.wd.length)jobs.push(wdLatest().then(a=>{if(a.length){FILM.wd=a;try{localStorage.setItem('luna_filmwd',JSON.stringify({t:Date.now(),items:a}))}catch(e){}}}));
+  if(!FILM.wd.length)jobs.push(wdLatest().then(a=>{if(a.length){FILM.wd=a;try{localStorage.setItem('neurun_filmwd',JSON.stringify({t:Date.now(),items:a}))}catch(e){}}}));
   await Promise.all(jobs);FLOADING=false;if(mode==='film'&&!QV().trim())drawSugg()}
 async function fetchFilmQ(t){
   if(fAbort)fAbort.abort();fAbort=new AbortController();const sig=fAbort.signal;sLoad=true;drawSugg();let items=[];
@@ -1329,7 +1306,7 @@ document.addEventListener('keydown',e=>{
 
 /* ---------- Uygulamayı cihaza kaydet: yalnızca 1 kez, tarayıcıya göre yönlendirme ---------- */
 {
- const KEY='lunai_inst_seen',UA=navigator.userAgent;
+ const KEY='neurun_inst_seen',UA=navigator.userAgent;
  const seen=()=>{try{return localStorage.getItem(KEY)==='1'}catch(e){return false}};
  const mark=()=>{try{localStorage.setItem(KEY,'1')}catch(e){}};
  const standalone=()=>navigator.standalone===true||['standalone','window-controls-overlay','minimal-ui'].some(m=>matchMedia(`(display-mode: ${m})`).matches);
@@ -1382,7 +1359,7 @@ document.addEventListener('keydown',e=>{
   mark();
   const sub=ios?'Ana ekrana ekle':(mac&&br==='safari')?'Dock’a ekle':'Uygulama olarak yükle';
   const el=document.createElement('div');el.id='inst';el.className='glass';
-    el.innerHTML=`<button class="ib" aria-label="neurun’u cihaza kaydet"><span class="ii"><svg viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(50 50)">${ASTR}</g></svg></span><span class="it"><b>neurun’u kaydet</b><small>${sub}</small></span></button><button class="ix" aria-label="Kapat"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
+    el.innerHTML=`<button class="ib" aria-label="neurun’u cihaza kaydet"><span class="ii"><img src="apple-touch-icon.png" alt=""></span><span class="it"><b>neurun’u kaydet</b><small>${sub}</small></span></button><button class="ix" aria-label="Kapat"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
   el.querySelector('.ib').addEventListener('click',install);
   el.querySelector('.ix').addEventListener('click',hide);
   home.appendChild(el);bn=el;requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
@@ -1395,18 +1372,18 @@ document.addEventListener('keydown',e=>{
 let splashT=null;
 function playSplash(){
   clearTimeout(splashT);
-  if(home.classList.contains('noanim')){home.dataset.st='c';splashT=setTimeout(()=>{splashT=null;openHome()},700);return}
+  if(home.classList.contains('noanim')){home.dataset.st='c';splashT=setTimeout(()=>{splashT=null;openHome()},500);return}
   home.dataset.st='a';                                            /* rozet belirir, yıldız döner */
-  setTimeout(()=>{home.dataset.st='b'},1500);                      /* yıldız durur, rozet oturur */
-  setTimeout(()=>{home.dataset.st='c'},1900);                      /* logo sağa kayar, neurun yazısı açılır */
-  splashT=setTimeout(()=>{splashT=null;openHome()},3900);          /* yazı tamamlanıp bir an görünür, sonra arama ekranı */
+  setTimeout(()=>{home.dataset.st='b'},800);                       /* yıldız durur, rozet oturur */
+  setTimeout(()=>{home.dataset.st='c'},1000);                      /* logo sağa kayar, neurun yazısı açılır */
+  splashT=setTimeout(()=>{splashT=null;openHome()},1800);          /* toplam 1,8 sn → arama ekranı */
 }
 function openHome(){
   if(!home.classList.contains('splash'))return;clearTimeout(splashT);
   home.classList.remove('splash');
   setTimeout(()=>{try{q.focus()}catch(e){}},700);
 }
-let first=false;try{first=!localStorage.getItem('lunai_intro')}catch(e){}
+let first=false;try{first=!localStorage.getItem('neurun_intro')}catch(e){}
 if(first){
   const intro=$('#intro'),sl=[...intro.querySelectorAll('.sl')],dots=[...intro.querySelectorAll('.dots i')],ms=[...document.querySelectorAll('#dm .m')];
   const names=['Google','Yandex','YouTube'];let si=0,mi=0;
@@ -1415,7 +1392,7 @@ if(first){
     dots.forEach((d,k)=>d.classList.toggle('on',k===i));$('#next').textContent=i===2?'Başla':'Devam'}
   setInterval(()=>{if(si!==1)return;mi=(mi+1)%3;ms.forEach((m,k)=>m.classList.toggle('on',k===mi));
     const c=$('#cap');c.style.opacity=0;setTimeout(()=>{c.textContent=names[mi];c.style.opacity=1},220)},1500);
-  function done(){try{localStorage.setItem('lunai_intro','1')}catch(e){}
+  function done(){try{localStorage.setItem('neurun_intro','1')}catch(e){}
     intro.classList.add('out');setTimeout(()=>{intro.hidden=true},650);setTimeout(playSplash,450)}
   $('#next').addEventListener('click',()=>si<2?go(si+1):done());
   $('#skip').addEventListener('click',done);

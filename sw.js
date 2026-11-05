@@ -1,10 +1,10 @@
 /*
   neurun service worker.
   Uygulama dosyalarını önbelleğe alır, çevrimdışı açılmayı ve hızlı yüklemeyi sağlar.
-  Dosyaları GitHub'da güncellediğinde VERSION değerini bir artır (ör. neurun-v3),
+  Dosyaları GitHub'da güncellediğinde VERSION değerini bir artır (ör. neurun-v4),
   böylece eski önbellek silinir ve herkes yeni sürümü alır.
 */
-const VERSION = 'neurun-v3';
+const VERSION = 'neurun-v4';
 const CORE = [
   './', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.webmanifest',
   'db-web.js', 'db-url.js', 'db-image.js', 'db-video.js', 'db-songs.js',
